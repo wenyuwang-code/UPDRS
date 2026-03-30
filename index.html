@@ -5,186 +5,246 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>15B生存小紙條</title>
     <style>
-        body { font-family: 'Droid Sans', sans-serif; background: #ffffff; color: #333; margin: 0; padding-bottom: 80px; }
-        .header { background: #f4f4f4; padding: 15px; text-align: center; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 100; }
-        .menu { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 10px; background: #fafafa; }
-        .menu button { padding: 8px 12px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        body { font-family: 'Droid Sans', sans-serif; background: #ffffff; color: #222; margin: 0; padding-bottom: 140px; }
+        .header { background: #f4f4f4; padding: 10px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #ddd; }
+        .menu { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+        .menu button { padding: 8px 12px; font-size: 14px; border: 1px solid #ccc; background: white; border-radius: 6px; cursor: pointer; }
         .menu button.active { background: #888; color: white; border-color: #888; }
-        .container { padding: 20px; max-width: 800px; margin: auto; }
-        .card { border: 1px solid #eee; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        h2 { border-left: 4px solid #888; padding-left: 10px; font-size: 1.2rem; }
-        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px 0; border-bottom: 1px dashed #f0f0f0; }
-        select, input { padding: 5px; border-radius: 4px; border: 1px solid #ccc; }
-        .result-bar { position: fixed; bottom: 0; width: 100%; background: #f8f8f8; border-top: 2px solid #ddd; padding: 15px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-        .score-box { font-weight: bold; font-size: 1.1rem; }
-        .save-btn { background: #555; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .menu button.special-btn { background: #e3f2fd; border-color: #2196f3; color: #0d47a1; font-weight: bold; }
+        .menu button.export-btn { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; font-weight: bold; }
+
+        .container { padding: 15px; max-width: 700px; margin: auto; }
+        .section-title { font-weight: bold; font-size: 1.5rem; border-left: 8px solid #888; padding-left: 12px; margin: 20px 0 10px; }
+        .sub-title { font-weight: bold; font-size: 1.1rem; color: #d32f2f; margin: 15px 0 5px; border-bottom: 1px solid #eee; }
+        
+        .patient-bar { background: #fffde7; padding: 10px; border: 1px solid #fbc02d; margin-bottom: 15px; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
+        .patient-bar input { flex: 1; padding: 8px; font-size: 1.1rem; border: 1px solid #ccc; border-radius: 4px; }
+
+        .row { display: flex; flex-direction: column; padding: 12px; border-bottom: 1px solid #ddd; }
+        .q-label { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: #111; }
+        select, input[type="text"] { font-size: 1rem; padding: 8px; border-radius: 6px; border: 1px solid #999; background: #fff; width: 100%; box-sizing: border-box; }
+        
+        .mp-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .mp-selects { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .mp-selects select { width: auto; min-width: 60px; padding: 4px; }
+
+        .footer-bar { position: fixed; bottom: 0; width: 100%; background: #fff; border-top: 4px solid #888; padding: 15px; text-align: center; box-shadow: 0 -4px 12px rgba(0,0,0,0.1); z-index: 1000; }
+        #export-area { width: 100%; height: 400px; font-family: monospace; font-size: 13px; padding: 10px; border: 2px solid #4caf50; background: #fafafa; }
         .hidden { display: none; }
-        @media print { .header, .menu, .result-bar { display: none; } .hidden { display: block !important; } }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h3>神經醫學評估工具</h3>
-    <div class="menu" id="mainMenu">
-        <button onclick="showSection('nihss')" id="btn-nihss">NIHSS</button>
-        <button onclick="showSection('updrs')" id="btn-updrs">UPDRS</button>
-        <button onclick="showSection('mmse')" id="btn-mmse">MMSE</button>
-        <button onclick="showSection('mp')" id="btn-mp">MP</button>
-        <button onclick="showSection('dtr')" id="btn-dtr">DTR</button>
-        <button onclick="showSection('joint')" id="btn-joint">Joint</button>
-        <button onclick="showSection('vibe')" id="btn-vibe">Vibration</button>
+    <div class="menu">
+        <button onclick="show('nihss')" id="b-nihss">NIHSS</button>
+        <button onclick="show('updrs')" id="b-updrs">UPDRS</button>
+        <button onclick="show('mp')" id="b-mp">MP/Motor</button>
+        <button onclick="show('dtr')" id="b-dtr">DTR/Reflex</button>
+        <button onclick="show('sensory')" id="b-sensory">Sensory</button>
+        <button onclick="show('other')" id="b-other">Other</button>
+        <button onclick="show('mmse')" id="b-mmse">MMSE</button>
+        <button onclick="show('history')" class="special-btn" id="b-history">暫存區</button>
+        <button onclick="exportData()" class="export-btn">Export</button>
     </div>
 </div>
 
-<div class="container" id="contentBody">
-    <section id="nihss" class="section">
-        <h2>(1) NIHSS 腦中風評估</h2>
-        <div id="nihss-items"></div>
-    </section>
+<div class="container">
+    <div class="patient-bar">
+        <span>病歷號:</span>
+        <input type="text" id="chart-no" placeholder="請輸入病歷號碼">
+        <button onclick="saveToHistory()" style="background:#4caf50; color:white; border:none; padding:8px; border-radius:4px;">保存暫存</button>
+    </div>
 
-    <section id="updrs" class="section hidden">
-        <h2>(2) UPDRS 第三部分 (動作)</h2>
-        <div id="updrs-items"></div>
-    </section>
+    <div id="s-nihss" class="sec"><div class="section-title">NIHSS</div><div id="nihss-box"></div></div>
 
-    <section id="mmse" class="section hidden">
-        <h2>(3) MMSE 簡易智能 (30/30)</h2>
-        <div id="mmse-items"></div>
-    </section>
+    <div id="s-updrs" class="sec hidden"><div class="section-title">UPDRS Part III</div><div id="updrs-box"></div></div>
 
-    <section id="mp" class="section hidden">
-        <h2>(4) Muscle Power (0-5)</h2>
-        <div id="mp-items"></div>
-    </section>
+    <div id="s-mp" class="sec hidden">
+        <div class="section-title">Motor & Muscle Power</div>
+        <div class="sub-title">*Motor Inspection</div>
+        <div class="mp-row"><span>muscle wasting:</span><select id="m-wasting"><option>-</option><option>+</option></select></div>
+        <div class="mp-row"><span>fasciculation:</span><select id="m-fasc"><option>-</option><option>+</option></select></div>
+        <div class="mp-row"><span>muscle cramps:</span><select id="m-cramp"><option>-</option><option>+</option></select></div>
+        <div class="mp-row"><span>dystonia:</span><select id="m-dystonia"><option>-</option><option>+</option></select></div>
+        <div class="sub-title">*Muscle Tone</div>
+        <div class="mp-row"><span>spasticity:</span><select id="m-spastic"><option>-</option><option>+</option></select></div>
+        <div class="mp-row"><span>rigidity:</span><select id="m-rigid"><option>-</option><option>+</option></select></div>
+        <div class="sub-title">*Muscle Power (R/L)</div>
+        <div id="mp-box"></div>
+    </div>
 
-    <section id="dtr" class="section hidden">
-        <h2>(5) DTR / Reflexes</h2>
-        <div id="dtr-items"></div>
-    </section>
+    <div id="s-dtr" class="sec hidden"><div class="section-title">DTR & Reflexes</div><div id="dtr-box"></div></div>
 
-    <section id="joint" class="section hidden">
-        <h2>(6) Joint Position (0-5)</h2>
-        <div id="joint-items"></div>
-    </section>
+    <div id="s-sensory" class="sec hidden">
+        <div class="section-title">Sensation</div>
+        <div class="mp-row"><span>Subjective paraesthesia:</span><select id="s-para"><option>-</option><option>+</option></select></div>
+        <div class="sub-title">*Large Fiber / Proprioception</div>
+        <div id="joint-vibe-box"></div>
+        <div class="sub-title">*Others & Small Fiber</div>
+        <div class="row"><span>Neglect:</span><input type="text" id="s-neglect" value="not demonstrable tactile/auditory/spatial hemineglect"></div>
+        <div class="mp-row"><span>Romberg's test:</span><select id="s-romberg"><option>-</option><option>+</option></select></div>
+        <div class="row"><span>Light touch:</span><input type="text" id="s-light" value="no hypoesthesia"></div>
+        <div class="row"><span>Pinprick:</span><input type="text" id="s-pin" value="no hypoesthesia"></div>
+        <div class="row"><span>Temperature:</span><input type="text" id="s-temp" value="no hypoesthesia to cold (by tuning fork)"></div>
+    </div>
 
-    <section id="vibe" class="section hidden">
-        <h2>(7) Vibration (0-8.0)</h2>
-        <div id="vibe-items"></div>
-    </section>
+    <div id="s-other" class="sec hidden">
+        <div class="section-title"># Coordination</div>
+        <div id="coord-box"></div>
+        <div class="section-title"># EPS</div>
+        <div id="eps-box"></div>
+        <div class="section-title"># Autonomic</div>
+        <div id="ans-box"></div>
+    </div>
+
+    <div id="s-mmse" class="sec hidden"><div class="section-title">MMSE (30-point)</div><div id="mmse-box"></div></div>
+
+    <div id="s-history" class="sec hidden"><div class="section-title">歷史暫存</div><div id="history-list"></div></div>
+    <div id="s-export" class="sec hidden"><div class="section-title">病歷複製格式</div><textarea id="export-area" readonly></textarea></div>
 </div>
 
-<div class="result-bar">
-    <div class="score-box" id="finalScoreDisplay">請開始評分</div>
-    <button class="save-btn" onclick="saveAsImage()">儲存結果 (截圖/PDF)</button>
-</div>
+<div class="footer-bar"><span id="score-display">Ready</span></div>
 
 <script>
-// --- Data Structure ---
+// --- 資料庫定義 ---
 const nihssData = [
-    { n: "1a. 意識程度", opts: ["0:清醒", "1:嗜睡", "2:呆滯", "3:昏迷"] },
-    { n: "1b. 意識詢問", opts: ["0:兩項正確", "1:一項正確", "2:兩項錯誤"] },
-    { n: "1c. 執行命令", opts: ["0:兩項正確", "1:一項正確", "2:兩項錯誤"] },
-    { n: "2. 眼球運動", opts: ["0:正常", "1:部分偏向", "2:完全偏向"] },
-    { n: "3. 視野", opts: ["0:正常", "1:部分偏盲", "2:完全偏盲", "3:全盲"] },
-    { n: "4. 面部肌肉", opts: ["0:正常", "1:輕微歪斜", "2:部分麻痺", "3:完全麻痺"] },
-    { n: "5a. 左上肢", opts: ["0:正常", "1:微掉", "2:緩落", "3:僅能水平", "4:無法活動"] },
-    { n: "5b. 右上肢", opts: ["0:正常", "1:微掉", "2:緩落", "3:僅能水平", "4:無法活動"] },
-    { n: "6a. 左下肢", opts: ["0:正常", "1:微掉", "2:緩落", "3:僅能水平", "4:無法活動"] },
-    { n: "6b. 右下肢", opts: ["0:正常", "1:微掉", "2:緩落", "3:僅能水平", "4:無法活動"] },
-    { n: "7. 肢體失調", opts: ["0:無", "1:一肢體", "2:兩肢體以上"] },
-    { n: "8. 感覺功能", opts: ["0:正常", "1:部分喪失", "2:完全喪失"] },
-    { n: "9. 語言功能", opts: ["0:正常", "1:輕中度失語", "2:嚴重失語", "3:完全失語"] },
-    { n: "10. 構音困難", opts: ["0:正常", "1:輕度", "2:嚴重"] },
-    { n: "11. 忽略症", opts: ["0:無", "1:單側忽略", "2:多項忽略"] }
+    {n:"1a. 意識程度", opts:["0 清醒","1 嗜睡","2 呆滯","3 昏迷"]},
+    {n:"1b. 意識詢問(月、年齡)", opts:["0 兩項正確","1 一項正確","2 兩項錯誤"]},
+    {n:"1c. 執行命令(睜閉眼/握拳)", opts:["0 兩項正確","1 一項正確","2 兩項錯誤"]},
+    {n:"2. 眼球運動", opts:["0 正常","1 部份限制","2 偏向一側"]},
+    {n:"3. 視野", opts:["0 看到","1 部份偏盲","2 偏盲","3 全盲"]},
+    {n:"4. 面部肌肉", opts:["0 正常","1 嘴歪","2 嘴角不動","3 週邊麻痺"]},
+    {n:"5a/b. 上肢 (L/R)", type:"dual"},
+    {n:"6a/b. 下肢 (L/R)", type:"dual"},
+    {n:"7. 肢體失調", opts:["0 無","1 一肢","2 二肢"]},
+    {n:"8. 感覺功能", opts:["0 正常","1 部份喪失","2 完全喪失"]},
+    {n:"9. 語言功能", opts:["0 正常","1 輕度","2 嚴重","3 完全失語"]},
+    {n:"10. 構音", opts:["0 清晰","1 部份了解","2 無法了解"]},
+    {n:"11. 忽略", opts:["0 無","1 一項","2 兩項以上"]}
 ];
 
-const mpItems = ["Neck Flexion", "Shoulder Abd (C5)", "Elbow Flex (C6)", "Elbow Ext (C7)", "Wrist Ext (C6)", "Grasping (C8/T1)", "Hip Flex (L2-L3)", "Knee Ext (L3-L4)", "Ankle DF (L4-L5)", "Big Toe Ext (L5)"];
-const dtrItems = ["Biceps(C5/6)", "Triceps(C7)", "Brachioradialis(C5/6)", "Knee(L4)", "Ankle(S1)"];
+const updrsData = [
+    {id:18, n:"Speech", opts:["0 正常","1 輕微減弱","2 中度含糊可了解","3 重度難了解","4 完全不了解"]},
+    {id:19, n:"Mask face", opts:["0 正常","1 輕微撲克臉","2 確定不正常","3 中度張口","4 僵硬全無"]},
+    {id:20, n:"Resting tremor", type:"4", k:["RU","LU","RL","LL"]},
+    {id:21, n:"Action tremor", type:"2", k:["R","L"]},
+    {id:22, n:"Rigidity", type:"5", k:["Neck","RU","LU","RL","LL"]},
+    {id:23, n:"Finger tapping", type:"2", k:["R","L"]},
+    {id:24, n:"Hand Movements", type:"2", k:["R","L"]},
+    {id:25, n:"RAM", type:"2", k:["R","L"]},
+    {id:26, n:"Foot tapping", type:"2", k:["R","L"]},
+    {id:27, n:"Stand up", opts:["0 正常","1 遲緩試多次","2 推把手站起","3 向後跌回可自力","4 需人幫"]},
+    {id:28, n:"Posture", opts:["0 挺直","1 輕微駝背","2 中度駝背側彎","3 中度側彎","4 嚴重前屈"]},
+    {id:29, n:"Gait", opts:["0 正常","1 遲緩拖步","2 碎步需小幫助","3 極端困難","4 不能走"]},
+    {id:30, n:"Pull test", opts:["0 正常","1 後退自平","2 無反應需抓","3 不穩失平","4 需幫站穩"]},
+    {id:31, n:"Bradykinesia", opts:["0 正常","1 稍微變慢","2 確定不正常","3 中度變慢","4 重度變慢"]}
+];
 
-// --- UI Generators ---
+const mmseQs = ["年份","季節","日期","禮拜","月份","省/市","縣/市","區/鄉鎮","單位","樓層","複述:藍色","複述:悲傷","複述:火車","100-7","93-7","86-7","79-7","72-7","回憶:藍色","回憶:悲傷","回憶:火車","手錶","鉛筆","白紙黑字","閉眼","拿紙","摺半","放大腿","寫句子","畫圖"];
+
+// --- 初始化函數 ---
 function init() {
     // NIHSS
-    const nihssContainer = document.getElementById('nihss-items');
-    nihssData.forEach((item, i) => {
-        nihssContainer.innerHTML += `<div class="row"><span>${item.n}</span><select class="nihss-val" onchange="calcNIHSS()">${item.opts.map((o, idx)=>`<option value="${idx}">${o}</option>`).join('')}</select></div>`;
+    const nb = document.getElementById('nihss-box');
+    nihssData.forEach((q, i) => {
+        if(q.type === "dual") {
+            nb.innerHTML += `<div class="row"><span class="q-label">${q.n}</span><div class="mp-selects">L:<select class="n-val">${[0,1,2,3,4].map(v=>`<option>${v}</option>`).join('')}</select> R:<select class="n-val">${[0,1,2,3,4].map(v=>`<option>${v}</option>`).join('')}</select></div></div>`;
+        } else {
+            nb.innerHTML += `<div class="row"><span class="q-label">${q.n}</span><select class="n-val" onchange="calc()">${q.opts.map((o,v)=>`<option value="${v}">${o}</option>`).join('')}</select></div>`;
+        }
+    });
+
+    // UPDRS
+    const ub = document.getElementById('updrs-box');
+    updrsData.forEach(q => {
+        let h = `<div class="row"><span class="q-label">${q.id}. ${q.n}</span><div class="mp-selects">`;
+        if(!q.type) h += `<select class="u-val">${q.opts.map((o,v)=>`<option value="${v}">${o}</option>`).join('')}</select>`;
+        else h += q.k.map(k=>`${k}:<select class="u-sub-val">${[0,1,2,3,4].map(v=>`<option>${v}</option>`).join('')}</select>`).join(' ');
+        ub.innerHTML += h + `</div></div>`;
     });
 
     // MP
-    const mpContainer = document.getElementById('mp-items');
-    mpItems.forEach(item => {
-        mpContainer.innerHTML += `<div class="row"><span>${item} (R/L)</span><div>
-            <select>${Array.from({length:6}, (_,i)=>`<option>${i}</option>`).join('')}</select> / 
-            <select>${Array.from({length:6}, (_,i)=>`<option>${i}</option>`).join('')}</select>
-        </div></div>`;
+    const mb = document.getElementById('mp-box');
+    const mpList = ["Neck Flex/Ext", "Shoulder Abd (C5)", "Elbow Flex (C6)", "Elbow Ext (C7)", "Wrist Flex (C7)", "Wrist Ext (C6)", "Finger Flex (C8)", "Finger Ext (C7)", "Grasping (C8/T1)", "Finger Abd/Add (T1)", "Hip Flex (L2)", "Knee Flex (S2)", "Knee Ext (L3)", "Ankle Dorsi (L4)", "Ankle Plantar (S1)", "Big Toe Ext (L5)"];
+    mpList.forEach(it => {
+        mb.innerHTML += `<div class="mp-row"><span>${it}</span><div class="mp-selects">R:<select class="mp-r">${[5,4,3,2,1,0].map(v=>`<option>${v}</option>`).join('')}</select> L:<select class="mp-l">${[5,4,3,2,1,0].map(v=>`<option>${v}</option>`).join('')}</select></div></div>`;
     });
 
     // DTR
-    const dtrContainer = document.getElementById('dtr-items');
-    const dtrOpts = ["mute", "-", "+", "++", "+++", "++++"];
-    dtrItems.forEach(item => {
-        dtrContainer.innerHTML += `<div class="row"><span>${item}</span><div>
-            <select>${dtrOpts.map(o=>`<option>${o}</option>`).join('')}</select>
-            <input type="checkbox"> Reinforcement
-        </div></div>`;
+    const db = document.getElementById('dtr-box');
+    ["Biceps", "Triceps", "Brachioradialis", "Knee", "Ankle"].forEach(it => {
+        db.innerHTML += `<div class="mp-row"><span>${it}</span><div class="mp-selects">R:<select class="d-r">${["++","+++","++++","+","-"].map(v=>`<option>${v}</option>`).join('')}</select> L:<select class="d-l">${["++","+++","++++","+","-"].map(v=>`<option>${v}</option>`).join('')}</select></div></div>`;
     });
 
-    // MMSE (Simplified for space)
-    const mmseContainer = document.getElementById('mmse-items');
-    for(let i=1; i<=30; i++) {
-        mmseContainer.innerHTML += `<span style="margin:5px; display:inline-block;">Q${i}: <input type="checkbox" class="mmse-check" onchange="calcMMSE()"></span>`;
-    }
-
-    // Joint Position
-    const jointContainer = document.getElementById('joint-items');
-    ['Fingers (R)', 'Fingers (L)', 'Toes (R)', 'Toes (L)'].forEach(item => {
-        jointContainer.innerHTML += `<div class="row"><span>${item}</span><select>${Array.from({length:6}, (_,i)=>`<option>${i}</option>`).join('')}</select></div>`;
+    // Sensory: Joint & Vibe
+    const jb = document.getElementById('joint-vibe-box');
+    ["Fingers (Joint Pos)", "Toes (Joint Pos)"].forEach(it => {
+        jb.innerHTML += `<div class="mp-row"><span>${it}</span><div class="mp-selects">R:<select class="j-r">${[5,4,3,2,1,0].map(v=>`<option>${v}</option>`).join('')}</select> L:<select class="j-l">${[5,4,3,2,1,0].map(v=>`<option>${v}</option>`).join('')}</select></div></div>`;
+    });
+    const vO = []; for(let i=80; i>=0; i-=5) vO.push((i/10).toFixed(1));
+    ["Big toe (Vibe)", "Finger (Vibe)", "Ankle (Vibe)"].forEach(it => {
+        jb.innerHTML += `<div class="mp-row"><span>${it}</span><div class="mp-selects">R:<select class="v-r">${vO.map(v=>`<option ${v=='8.0'?'selected':''}>${v}</option>`).join('')}</select> L:<select class="v-l">${vO.map(v=>`<option ${v=='8.0'?'selected':''}>${v}</option>`).join('')}</select></div></div>`;
     });
 
-    // Vibration
-    const vibeContainer = document.getElementById('vibe-items');
-    ['Big Toe (R/L)', 'Finger (R/L)', 'Ankle (R/L)'].forEach(item => {
-        vibeContainer.innerHTML += `<div class="row"><span>${item}</span><div>
-            <input type="number" step="0.1" min="0" max="8" value="8.0"> / <input type="number" step="0.1" min="0" max="8" value="8.0">
-        </div></div>`;
-    });
-}
-
-// --- Logic ---
-function showSection(id) {
-    document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-    document.querySelectorAll('.menu button').forEach(b => b.classList.remove('active'));
-    document.getElementById('btn-' + id).classList.add('active');
+    // Other (Coord/EPS/ANS)
+    document.getElementById('coord-box').innerHTML = `
+        <div class="mp-row"><span>Dysmetria (FNF):</span><div class="mp-selects">R:<select id="o-fnf-r"><option>-</option><option>+</option></select> L:<select id="o-fnf-l"><option>-</option><option>+</option></select></div></div>
+        <div class="mp-row"><span>Dysmetria (HKS):</span><div class="mp-selects">R:<select id="o-hks-r"><option>-</option><option>+</option></select> L:<select id="o-hks-l"><option>-</option><option>+</option></select></div></div>
+        <div class="mp-row"><span>Truncal titubation:</span><select id="o-titub"><option>-</option><option>+</option></select></div>
+        <div class="row"><span>Stance:</span><input type="text" id="o-stance" value="narrow based"></div>
+        <div class="row"><span>Gait:</span><input type="text" id="o-gait-c" value="normal"></div>`;
     
-    if(id === 'nihss') calcNIHSS();
-    else if(id === 'mmse') calcMMSE();
-    else document.getElementById('finalScoreDisplay').innerText = "非加總型評估";
-}
+    document.getElementById('eps-box').innerHTML = `
+        <div class="mp-row"><span>Face Expression:</span><div class="mp-selects"><input type="text" id="e-face-t" value="appropriate" style="width:100px"> mask:<select id="e-face-m"><option>-</option><option>+</option></select></div></div>
+        <div class="mp-row"><span>Tremor:</span><div class="mp-selects">Rest:<select id="e-t-r"><option>-</option><option>+</option></select> Act:<select id="e-t-a"><option>-</option><option>+</option></select> Post:<select id="e-t-p"><option>-</option><option>+</option></select></div></div>
+        <div class="mp-row"><span>Bradykinesia:</span><div class="mp-selects">RUE:<select id="e-b-rue"><option>-</option><option>+</option></select> LUE:<select id="e-b-lue"><option>-</option><option>+</option></select> RLE:<select id="e-b-rle"><option>-</option><option>+</option></select> LLE:<select id="e-b-lle"><option>-</option><option>+</option></select></div></div>`;
 
-function calcNIHSS() {
-    let total = 0;
-    let seq = "";
-    document.querySelectorAll('.nihss-val').forEach(s => {
-        total += parseInt(s.value);
-        seq += s.value;
+    document.getElementById('ans-box').innerHTML = `
+        <div class="mp-row"><span>Sphincters:</span><div class="mp-selects">Incon:<select id="a-u-in"><option>-</option><option>+</option></select> Freq:<select id="a-u-fr"><option>-</option><option>+</option></select> Consti:<select id="a-s-co"><option>-</option><option>+</option></select></div></div>`;
+
+    // MMSE
+    const mmb = document.getElementById('mmse-box');
+    mmseQs.forEach((q, i) => {
+        mmb.innerHTML += `<div class="mp-row"><span>${i+1}. ${q}</span><select class="m-val" onchange="calc()"><option value="1">1</option><option value="0">0</option></select></div>`;
     });
-    document.getElementById('finalScoreDisplay').innerText = `NIHSS = ${total} (${seq})`;
 }
 
-function calcMMSE() {
-    const score = document.querySelectorAll('.mmse-check:checked').length;
-    document.getElementById('finalScoreDisplay').innerText = `MMSE Total: ${score} / 30`;
+function show(id) {
+    document.querySelectorAll('.sec').forEach(s=>s.classList.add('hidden'));
+    document.getElementById('s-'+id).classList.remove('hidden');
+    document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+    document.getElementById('b-'+id).classList.add('active');
 }
 
-function saveAsImage() {
-    alert("將開啟列印視窗，請選擇「儲存為 PDF」或「截圖」。這能確保所有資料完整保留。");
-    window.print();
+function calc() {
+    const n = Array.from(document.querySelectorAll('.n-val')).reduce((a,b)=>a+parseInt(b.value),0);
+    const m = Array.from(document.querySelectorAll('.m-val')).reduce((a,b)=>a+parseInt(b.value),0);
+    document.getElementById('score-display').innerText = `NIHSS: ${n} | MMSE: ${m}/30`;
 }
 
-init();
-showSection('nihss');
+function exportData() {
+    show('export');
+    const get = (id) => document.getElementById(id).value;
+    const sels = (cl) => Array.from(document.querySelectorAll(cl)).map(s=>s.value);
+    
+    let t = `[Patient ID: ${get('chart-no') || 'N/A'}]\n\n`;
+    
+    t += `* Motor\nMotor inspection: muscle wasting(${get('m-wasting')}), fasciculation(${get('m-fasc')}), muscle cramps(${get('m-cramp')}), dystonia(${get('m-dystonia')})\n`;
+    t += `Muscle tone: spasticity(${get('m-spastic')}), rigidity(${get('m-rigid')})\n\n`;
+
+    t += `# Sensation:\n- Subjective paraesthesia (${get('s-para')})\n`;
+    t += `- Joint position/Proprioception: Fingers ${sels('.j-r')[0]}/${sels('.j-l')[0]}, Toes ${sels('.j-r')[1]}/${sels('.j-l')[1]}\n`;
+    t += `- Vibration: BigToe ${sels('.v-r')[0]}/${sels('.v-l')[0]}\n`;
+    t += `- Neglect: ${get('s-neglect')}\n- Romberg's test (${get('s-romberg')})\n\n`;
+    
+    t += `NIHSS: ${Array.from(document.querySelectorAll('.n-val')).reduce((a,b)=>a+parseInt(b.value),0)}\n`;
+    t += `MMSE: ${Array.from(document.querySelectorAll('.m-val')).reduce((a,b)=>a+parseInt(b.value),0)}/30\n`;
+    
+    document.getElementById('export-area').value = t;
+}
+
+init(); show('nihss');
 </script>
-
 </body>
 </html>
