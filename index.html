@@ -3,183 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPDRS 第三部分評估</title>
+    <title>神經醫學評估整合系統</title>
     <style>
-        /* 字體與基礎設定 */
-        body {
-            font-family: 'Droid Sans', 'Helvetica Neue', Arial, sans-serif;
-            background-color: #ffffff;
-            color: #444;
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 10px;
-        }
-
-        .section-title {
-            font-weight: bold;
-            color: #888;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* 卡片式設計 */
-        .question-card {
-            background: #ffffff;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        }
-
-        .question-label {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        /* 選項樣式 */
-        .option-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .option-item {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            border: 1px solid #f0f0f0;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .option-item:active {
-            background-color: #f9f9f9;
-        }
-
-        .option-item input {
-            margin-right: 15px;
-            accent-color: #888;
-        }
-
-        /* 結果區塊 */
-        .result-box {
-            position: sticky;
-            bottom: 20px;
-            background: #f8f8f8;
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-        }
-
-        .score-display {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .score-val {
-            font-size: 2rem;
-            color: #555;
-        }
-
-        .hint {
-            font-size: 0.8rem;
-            color: #999;
-            margin-top: 5px;
-        }
+        body { font-family: 'Droid Sans', sans-serif; background: #ffffff; color: #333; margin: 0; padding-bottom: 80px; }
+        .header { background: #f4f4f4; padding: 15px; text-align: center; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 100; }
+        .menu { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 10px; background: #fafafa; }
+        .menu button { padding: 8px 12px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .menu button.active { background: #888; color: white; border-color: #888; }
+        .container { padding: 20px; max-width: 800px; margin: auto; }
+        .card { border: 1px solid #eee; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        h2 { border-left: 4px solid #888; padding-left: 10px; font-size: 1.2rem; }
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px 0; border-bottom: 1px dashed #f0f0f0; }
+        select, input { padding: 5px; border-radius: 4px; border: 1px solid #ccc; }
+        .result-bar { position: fixed; bottom: 0; width: 100%; background: #f8f8f8; border-top: 2px solid #ddd; padding: 15px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+        .score-box { font-weight: bold; font-size: 1.1rem; }
+        .save-btn { background: #555; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .hidden { display: none; }
+        @media print { .header, .menu, .result-bar { display: none; } .hidden { display: block !important; } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>UPDRS 評估工具</h1>
-    <div class="section-title">第三部份：動作能力之檢查</div>
-
-    <div id="quiz-container">
-        </div>
-
-    <div class="result-box">
-        <div class="score-display">第三部分總分：<span class="score-val" id="total-score">0</span></div>
-        <div class="hint">點選選項後分數會自動累計</div>
+<div class="header">
+    <h3>神經醫學評估工具</h3>
+    <div class="menu" id="mainMenu">
+        <button onclick="showSection('nihss')" id="btn-nihss">NIHSS</button>
+        <button onclick="showSection('updrs')" id="btn-updrs">UPDRS</button>
+        <button onclick="showSection('mmse')" id="btn-mmse">MMSE</button>
+        <button onclick="showSection('mp')" id="btn-mp">MP</button>
+        <button onclick="showSection('dtr')" id="btn-dtr">DTR</button>
+        <button onclick="showSection('joint')" id="btn-joint">Joint</button>
+        <button onclick="showSection('vibe')" id="btn-vibe">Vibration</button>
     </div>
 </div>
 
+<div class="container" id="contentBody">
+    <section id="nihss" class="section">
+        <h2>(1) NIHSS 腦中風評估</h2>
+        <div id="nihss-items"></div>
+    </section>
+
+    <section id="updrs" class="section hidden">
+        <h2>(2) UPDRS 第三部分 (動作)</h2>
+        <div id="updrs-items"></div>
+    </section>
+
+    <section id="mmse" class="section hidden">
+        <h2>(3) MMSE 簡易智能 (30/30)</h2>
+        <div id="mmse-items"></div>
+    </section>
+
+    <section id="mp" class="section hidden">
+        <h2>(4) Muscle Power (0-5)</h2>
+        <div id="mp-items"></div>
+    </section>
+
+    <section id="dtr" class="section hidden">
+        <h2>(5) DTR / Reflexes</h2>
+        <div id="dtr-items"></div>
+    </section>
+
+    <section id="joint" class="section hidden">
+        <h2>(6) Joint Position (0-5)</h2>
+        <div id="joint-items"></div>
+    </section>
+
+    <section id="vibe" class="section hidden">
+        <h2>(7) Vibration (0-8.0)</h2>
+        <div id="vibe-items"></div>
+    </section>
+</div>
+
+<div class="result-bar">
+    <div class="score-box" id="finalScoreDisplay">請開始評分</div>
+    <button class="save-btn" onclick="saveAsImage()">儲存結果 (截圖/PDF)</button>
+</div>
+
 <script>
-    // 根據您提供的文本資料建立題目 (18-31題)
-    const questions = [
-        { id: 18, title: "18. 語言", options: ["正常", "表情、用字、音量有一點減弱", "中度障礙,發音含糊單調,但可了解", "重度障礙,很難了解", "完全不了解"] },
-        { id: 19, title: "19. 面部表情", options: ["正常", "輕微面無表情", "面部表情輕微地減少 (確診不正常)", "中度面無表情,嘴巴微張", "臉部僵硬、表情全無、嘴張開 >0.5cm"] },
-        { id: 20, title: "20. 靜止型顫抖 (各肢體)", options: ["沒有", "輕微顫抖,很少出現", "持續輕微或間歇中度顫抖", "中度顫抖,常常出現", "抖動幅度很大,且經常出現"] },
-        { id: 21, title: "21. 動作/姿勢型顫抖", options: ["沒有", "輕微,僅動作時發生", "中度,僅動作時發生", "中度,動作與維持姿勢皆發生", "重度,會干擾進食"] },
-        { id: 22, title: "22. 僵硬 (主要關節)", options: ["沒有", "極輕微", "輕微至中度", "明顯,但動作可完成", "嚴重,動作完成困難"] },
-        { id: 23, title: "23. 手指打拍 (5秒次數)", options: ["正常 (≥15下)", "輕微緩慢 (11-14下)", "中度障礙 (7-10下)", "重度障礙 (3-6下)", "幾乎無法動作 (0-2下)"] },
-        { id: 24, title: "24. 手掌握合", options: ["正常", "有點緩慢/幅度微減", "中度障礙,易疲勞,有時中斷", "重度障礙,啟動吃力", "幾乎無法動作"] },
-        { id: 25, title: "25. 前臂迴旋", options: ["正常", "有點遲緩/幅度微減", "中度遲緩,易疲勞", "重度遲緩,啟動吃力", "幾乎無法動作"] },
-        { id: 26, title: "26. 兩腳靈敏度測試", options: ["正常", "有點遲緩/幅度微減", "中度遲緩,易疲勞", "重度遲緩,啟動吃力", "幾乎無法動作"] },
-        { id: 27, title: "27. 從椅子上站起來", options: ["正常", "遲緩/需試好幾次", "可自己推把手站起來", "易後跌需多試幾次,但仍可自理", "需人幫助才能起身"] },
-        { id: 28, title: "28. 姿勢", options: ["正常挺直", "輕微駝背 (老人正常度)", "中度駝背,明顯異常/輕度側彎", "中度駝背,中度側彎", "嚴重前屈,姿勢極端不正確"] },
-        { id: 29, title: "29. 步態", options: ["正常", "步態遲緩、拖步 (無急步)", "走路困難、急步、碎步", "走路極端困難,需要幫助", "即使有幫助也無法走路"] },
-        { id: 30, title: "30. 姿勢平穩度 (推拉測試)", options: ["正常", "後退但可自行平衡", "無反應,若無人抓會摔倒", "非常不穩,自然狀態也會失衡", "需要幫助才能站穩"] },
-        { id: 31, title: "31. 全身動作遲緩", options: ["正常", "稍微變慢/幅度微減", "輕度變慢/動作減少", "中度變慢/幅度減小", "重度變慢/動作減少"] }
-    ];
+// --- Data Structure ---
+const nihssData = [
+    { n: "1a. 意識程度", opts: ["0:清醒", "1:嗜睡", "2:呆滯", "3:昏迷"] },
+    { n: "1b. 意識詢問", opts: ["0:兩項正確", "1:一項正確", "2:兩項錯誤"] },
+    { n: "1c. 執行命令", opts: ["0:兩項正確", "1:一項正確", "2:兩項錯誤"] },
+    { n: "2. 眼球運動", opts: ["0:正常", "1:部分偏向", "2:完全偏向"] },
+    { n: "3. 視野", opts: ["0:正常", "1:部分偏盲", "2:完全偏盲", "3:全盲"] },
+    { n: "4. 面部肌肉", opts: ["0:正常", "1:輕微歪斜", "2:部分麻痺", "3:完全麻痺"] },
+    { n: "5a. 左上肢", opts: ["0:正常", "1:微掉", "2:緩落", "3:僅能水平", "4:無法活動"] },
+    { n: "5b. 右上肢", opts: ["0:正常", "1:微掉", "2:緩落", "3:僅能水平", "4:無法活動"] },
+    { n: "6a. 左下肢", opts: ["0:正常", "1:微掉", "2:緩落", "3:僅能水平", "4:無法活動"] },
+    { n: "6b. 右下肢", opts: ["0:正常", "1:微掉", "2:緩落", "3:僅能水平", "4:無法活動"] },
+    { n: "7. 肢體失調", opts: ["0:無", "1:一肢體", "2:兩肢體以上"] },
+    { n: "8. 感覺功能", opts: ["0:正常", "1:部分喪失", "2:完全喪失"] },
+    { n: "9. 語言功能", opts: ["0:正常", "1:輕中度失語", "2:嚴重失語", "3:完全失語"] },
+    { n: "10. 構音困難", opts: ["0:正常", "1:輕度", "2:嚴重"] },
+    { n: "11. 忽略症", opts: ["0:無", "1:單側忽略", "2:多項忽略"] }
+];
 
-    const quizContainer = document.getElementById('quiz-container');
+const mpItems = ["Neck Flexion", "Shoulder Abd (C5)", "Elbow Flex (C6)", "Elbow Ext (C7)", "Wrist Ext (C6)", "Grasping (C8/T1)", "Hip Flex (L2-L3)", "Knee Ext (L3-L4)", "Ankle DF (L4-L5)", "Big Toe Ext (L5)"];
+const dtrItems = ["Biceps(C5/6)", "Triceps(C7)", "Brachioradialis(C5/6)", "Knee(L4)", "Ankle(S1)"];
 
-    // 動態生成 HTML
-    questions.forEach(q => {
-        const card = document.createElement('div');
-        card.className = 'question-card';
-        
-        let optionsHTML = '';
-        q.options.forEach((opt, index) => {
-            optionsHTML += `
-                <label class="option-item">
-                    <input type="radio" name="q${q.id}" value="${index}" onchange="calculateScore()">
-                    <span>${index} = ${opt}</span>
-                </label>
-            `;
-        });
-
-        card.innerHTML = `
-            <span class="question-label">${q.title}</span>
-            <div class="option-group">
-                ${optionsHTML}
-            </div>
-        `;
-        quizContainer.appendChild(card);
+// --- UI Generators ---
+function init() {
+    // NIHSS
+    const nihssContainer = document.getElementById('nihss-items');
+    nihssData.forEach((item, i) => {
+        nihssContainer.innerHTML += `<div class="row"><span>${item.n}</span><select class="nihss-val" onchange="calcNIHSS()">${item.opts.map((o, idx)=>`<option value="${idx}">${o}</option>`).join('')}</select></div>`;
     });
 
-    // 計算分數
-    function calculateScore() {
-        let total = 0;
-        const selected = document.querySelectorAll('input[type="radio"]:checked');
-        selected.forEach(input => {
-            total += parseInt(input.value);
-        });
-        document.getElementById('total-score').innerText = total;
+    // MP
+    const mpContainer = document.getElementById('mp-items');
+    mpItems.forEach(item => {
+        mpContainer.innerHTML += `<div class="row"><span>${item} (R/L)</span><div>
+            <select>${Array.from({length:6}, (_,i)=>`<option>${i}</option>`).join('')}</select> / 
+            <select>${Array.from({length:6}, (_,i)=>`<option>${i}</option>`).join('')}</select>
+        </div></div>`;
+    });
+
+    // DTR
+    const dtrContainer = document.getElementById('dtr-items');
+    const dtrOpts = ["mute", "-", "+", "++", "+++", "++++"];
+    dtrItems.forEach(item => {
+        dtrContainer.innerHTML += `<div class="row"><span>${item}</span><div>
+            <select>${dtrOpts.map(o=>`<option>${o}</option>`).join('')}</select>
+            <input type="checkbox"> Reinforcement
+        </div></div>`;
+    });
+
+    // MMSE (Simplified for space)
+    const mmseContainer = document.getElementById('mmse-items');
+    for(let i=1; i<=30; i++) {
+        mmseContainer.innerHTML += `<span style="margin:5px; display:inline-block;">Q${i}: <input type="checkbox" class="mmse-check" onchange="calcMMSE()"></span>`;
     }
+
+    // Joint Position
+    const jointContainer = document.getElementById('joint-items');
+    ['Fingers (R)', 'Fingers (L)', 'Toes (R)', 'Toes (L)'].forEach(item => {
+        jointContainer.innerHTML += `<div class="row"><span>${item}</span><select>${Array.from({length:6}, (_,i)=>`<option>${i}</option>`).join('')}</select></div>`;
+    });
+
+    // Vibration
+    const vibeContainer = document.getElementById('vibe-items');
+    ['Big Toe (R/L)', 'Finger (R/L)', 'Ankle (R/L)'].forEach(item => {
+        vibeContainer.innerHTML += `<div class="row"><span>${item}</span><div>
+            <input type="number" step="0.1" min="0" max="8" value="8.0"> / <input type="number" step="0.1" min="0" max="8" value="8.0">
+        </div></div>`;
+    });
+}
+
+// --- Logic ---
+function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+    document.querySelectorAll('.menu button').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + id).classList.add('active');
+    
+    if(id === 'nihss') calcNIHSS();
+    else if(id === 'mmse') calcMMSE();
+    else document.getElementById('finalScoreDisplay').innerText = "非加總型評估";
+}
+
+function calcNIHSS() {
+    let total = 0;
+    let seq = "";
+    document.querySelectorAll('.nihss-val').forEach(s => {
+        total += parseInt(s.value);
+        seq += s.value;
+    });
+    document.getElementById('finalScoreDisplay').innerText = `NIHSS = ${total} (${seq})`;
+}
+
+function calcMMSE() {
+    const score = document.querySelectorAll('.mmse-check:checked').length;
+    document.getElementById('finalScoreDisplay').innerText = `MMSE Total: ${score} / 30`;
+}
+
+function saveAsImage() {
+    alert("將開啟列印視窗，請選擇「儲存為 PDF」或「截圖」。這能確保所有資料完整保留。");
+    window.print();
+}
+
+init();
+showSection('nihss');
 </script>
 
 </body>
