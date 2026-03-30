@@ -1,1 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPDRS 第三部分評估</title>
+    <style>
+        /* 字體與基礎設定 */
+        body {
+            font-family: 'Droid Sans', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffffff;
+            color: #444;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
 
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            color: #888;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* 卡片式設計 */
+        .question-card {
+            background: #ffffff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .question-label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* 選項樣式 */
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #f0f0f0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .option-item:active {
+            background-color: #f9f9f9;
+        }
+
+        .option-item input {
+            margin-right: 15px;
+            accent-color: #888;
+        }
+
+        /* 結果區塊 */
+        .result-box {
+            position: sticky;
+            bottom: 20px;
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .score-val {
+            font-size: 2rem;
+            color: #555;
+        }
+
+        .hint {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>UPDRS 評估工具</h1>
+    <div class="section-title">第三部份：動作能力之檢查</div>
+
+    <div id="quiz-container">
+        </div>
+
+    <div class="result-box">
+        <div class="score-display">第三部分總分：<span class="score-val" id="total-score">0</span></div>
+        <div class="hint">點選選項後分數會自動累計</div>
+    </div>
+</div>
+
+<script>
+    // 根據您提供的文本資料建立題目 (18-31題)
+    const questions = [
+        { id: 18, title: "18. 語言", options: ["正常", "表情、用字、音量有一點減弱", "中度障礙,發音含糊單調,但可了解", "重度障礙,很難了解", "完全不了解"] },
+        { id: 19, title: "19. 面部表情", options: ["正常", "輕微面無表情", "面部表情輕微地減少 (確診不正常)", "中度面無表情,嘴巴微張", "臉部僵硬、表情全無、嘴張開 >0.5cm"] },
+        { id: 20, title: "20. 靜止型顫抖 (各肢體)", options: ["沒有", "輕微顫抖,很少出現", "持續輕微或間歇中度顫抖", "中度顫抖,常常出現", "抖動幅度很大,且經常出現"] },
+        { id: 21, title: "21. 動作/姿勢型顫抖", options: ["沒有", "輕微,僅動作時發生", "中度,僅動作時發生", "中度,動作與維持姿勢皆發生", "重度,會干擾進食"] },
+        { id: 22, title: "22. 僵硬 (主要關節)", options: ["沒有", "極輕微", "輕微至中度", "明顯,但動作可完成", "嚴重,動作完成困難"] },
+        { id: 23, title: "23. 手指打拍 (5秒次數)", options: ["正常 (≥15下)", "輕微緩慢 (11-14下)", "中度障礙 (7-10下)", "重度障礙 (3-6下)", "幾乎無法動作 (0-2下)"] },
+        { id: 24, title: "24. 手掌握合", options: ["正常", "有點緩慢/幅度微減", "中度障礙,易疲勞,有時中斷", "重度障礙,啟動吃力", "幾乎無法動作"] },
+        { id: 25, title: "25. 前臂迴旋", options: ["正常", "有點遲緩/幅度微減", "中度遲緩,易疲勞", "重度遲緩,啟動吃力", "幾乎無法動作"] },
+        { id: 26, title: "26. 兩腳靈敏度測試", options: ["正常", "有點遲緩/幅度微減", "中度遲緩,易疲勞", "重度遲緩,啟動吃力", "幾乎無法動作"] },
+        { id: 27, title: "27. 從椅子上站起來", options: ["正常", "遲緩/需試好幾次", "可自己推把手站起來", "易後跌需多試幾次,但仍可自理", "需人幫助才能起身"] },
+        { id: 28, title: "28. 姿勢", options: ["正常挺直", "輕微駝背 (老人正常度)", "中度駝背,明顯異常/輕度側彎", "中度駝背,中度側彎", "嚴重前屈,姿勢極端不正確"] },
+        { id: 29, title: "29. 步態", options: ["正常", "步態遲緩、拖步 (無急步)", "走路困難、急步、碎步", "走路極端困難,需要幫助", "即使有幫助也無法走路"] },
+        { id: 30, title: "30. 姿勢平穩度 (推拉測試)", options: ["正常", "後退但可自行平衡", "無反應,若無人抓會摔倒", "非常不穩,自然狀態也會失衡", "需要幫助才能站穩"] },
+        { id: 31, title: "31. 全身動作遲緩", options: ["正常", "稍微變慢/幅度微減", "輕度變慢/動作減少", "中度變慢/幅度減小", "重度變慢/動作減少"] }
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+
+    // 動態生成 HTML
+    questions.forEach(q => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let optionsHTML = '';
+        q.options.forEach((opt, index) => {
+            optionsHTML += `
+                <label class="option-item">
+                    <input type="radio" name="q${q.id}" value="${index}" onchange="calculateScore()">
+                    <span>${index} = ${opt}</span>
+                </label>
+            `;
+        });
+
+        card.innerHTML = `
+            <span class="question-label">${q.title}</span>
+            <div class="option-group">
+                ${optionsHTML}
+            </div>
+        `;
+        quizContainer.appendChild(card);
+    });
+
+    // 計算分數
+    function calculateScore() {
+        let total = 0;
+        const selected = document.querySelectorAll('input[type="radio"]:checked');
+        selected.forEach(input => {
+            total += parseInt(input.value);
+        });
+        document.getElementById('total-score').innerText = total;
+    }
+</script>
+
+</body>
+</html>
