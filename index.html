@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+=<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -15,21 +15,24 @@
 
         .container { padding: 15px; max-width: 700px; margin: auto; }
         .section-title { font-weight: bold; font-size: 1.5rem; border-left: 8px solid #888; padding-left: 12px; margin: 20px 0 10px; }
-        .sub-title { font-weight: bold; font-size: 1.1rem; color: #d32f2f; margin: 15px 0 5px; border-bottom: 1px solid #eee; }
         
         .patient-bar { background: #fffde7; padding: 10px; border: 1px solid #fbc02d; margin-bottom: 15px; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
         .patient-bar input { flex: 1; padding: 8px; font-size: 1.1rem; border: 1px solid #ccc; border-radius: 4px; }
 
         .row { display: flex; flex-direction: column; padding: 12px; border-bottom: 1px solid #ddd; }
-        .q-label { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: #111; }
+        .q-label { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: #111; }
         select, input[type="text"] { font-size: 1rem; padding: 8px; border-radius: 6px; border: 1px solid #999; background: #fff; width: 100%; box-sizing: border-box; }
         
-        .mp-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .mp-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 2px solid #eee; }
+        .mp-label { font-size: 1.1rem; font-weight: 700; flex: 1; }
         .mp-selects { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .mp-selects select { width: auto; min-width: 60px; padding: 4px; }
+        .mp-selects select { width: auto; min-width: 65px; padding: 5px; }
 
         .footer-bar { position: fixed; bottom: 0; width: 100%; background: #fff; border-top: 4px solid #888; padding: 15px; text-align: center; box-shadow: 0 -4px 12px rgba(0,0,0,0.1); z-index: 1000; }
+        #score-display { font-weight: bold; font-size: 1.2rem; display: block; margin-bottom: 10px; color: #d32f2f; }
+        
         #export-area { width: 100%; height: 400px; font-family: monospace; font-size: 13px; padding: 10px; border: 2px solid #4caf50; background: #fafafa; }
+        .history-item { background: #f9f9f9; border: 1px solid #ddd; padding: 12px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
         .hidden { display: none; }
     </style>
 </head>
@@ -39,10 +42,9 @@
     <div class="menu">
         <button onclick="show('nihss')" id="b-nihss">NIHSS</button>
         <button onclick="show('updrs')" id="b-updrs">UPDRS</button>
-        <button onclick="show('mp')" id="b-mp">MP/Motor</button>
+        <button onclick="show('mp')" id="b-mp">MP</button>
         <button onclick="show('dtr')" id="b-dtr">DTR/Reflex</button>
         <button onclick="show('sensory')" id="b-sensory">Sensory</button>
-        <button onclick="show('other')" id="b-other">Other</button>
         <button onclick="show('mmse')" id="b-mmse">MMSE</button>
         <button onclick="show('history')" class="special-btn" id="b-history">暫存區</button>
         <button onclick="exportData()" class="export-btn">Export</button>
@@ -56,192 +58,208 @@
         <button onclick="saveToHistory()" style="background:#4caf50; color:white; border:none; padding:8px; border-radius:4px;">保存暫存</button>
     </div>
 
-    <div id="s-nihss" class="sec"><div class="section-title">NIHSS</div><div id="nihss-box"></div></div>
+    <div id="s-nihss" class="sec">
+        <div class="section-title">NIHSS 腦中風評估表</div>
+        <div id="nihss-box"></div>
+    </div>
 
-    <div id="s-updrs" class="sec hidden"><div class="section-title">UPDRS Part III</div><div id="updrs-box"></div></div>
+    <div id="s-updrs" class="sec hidden">
+        <div class="section-title">UPDRS Part III (動作能力檢查)</div>
+        <div id="updrs-box"></div>
+    </div>
 
     <div id="s-mp" class="sec hidden">
-        <div class="section-title">Motor & Muscle Power</div>
-        <div class="sub-title">*Motor Inspection</div>
-        <div class="mp-row"><span>muscle wasting:</span><select id="m-wasting"><option>-</option><option>+</option></select></div>
-        <div class="mp-row"><span>fasciculation:</span><select id="m-fasc"><option>-</option><option>+</option></select></div>
-        <div class="mp-row"><span>muscle cramps:</span><select id="m-cramp"><option>-</option><option>+</option></select></div>
-        <div class="mp-row"><span>dystonia:</span><select id="m-dystonia"><option>-</option><option>+</option></select></div>
-        <div class="sub-title">*Muscle Tone</div>
-        <div class="mp-row"><span>spasticity:</span><select id="m-spastic"><option>-</option><option>+</option></select></div>
-        <div class="mp-row"><span>rigidity:</span><select id="m-rigid"><option>-</option><option>+</option></select></div>
-        <div class="sub-title">*Muscle Power (R/L)</div>
+        <div class="section-title">Muscle Power</div>
         <div id="mp-box"></div>
     </div>
 
-    <div id="s-dtr" class="sec hidden"><div class="section-title">DTR & Reflexes</div><div id="dtr-box"></div></div>
+    <div id="s-dtr" class="sec hidden">
+        <div class="section-title">DTR & Reflexes (R/L)</div>
+        <div id="dtr-box"></div>
+    </div>
 
     <div id="s-sensory" class="sec hidden">
-        <div class="section-title">Sensation</div>
+        <div class="section-title">Sensory 感覺系統</div>
         <div class="mp-row"><span>Subjective paraesthesia:</span><select id="s-para"><option>-</option><option>+</option></select></div>
-        <div class="sub-title">*Large Fiber / Proprioception</div>
         <div id="joint-vibe-box"></div>
-        <div class="sub-title">*Others & Small Fiber</div>
         <div class="row"><span>Neglect:</span><input type="text" id="s-neglect" value="not demonstrable tactile/auditory/spatial hemineglect"></div>
         <div class="mp-row"><span>Romberg's test:</span><select id="s-romberg"><option>-</option><option>+</option></select></div>
+        <div class="section-title" style="font-size:1.1rem; border-left:4px solid #aaa;">Small fiber:</div>
         <div class="row"><span>Light touch:</span><input type="text" id="s-light" value="no hypoesthesia"></div>
         <div class="row"><span>Pinprick:</span><input type="text" id="s-pin" value="no hypoesthesia"></div>
-        <div class="row"><span>Temperature:</span><input type="text" id="s-temp" value="no hypoesthesia to cold (by tuning fork)"></div>
+        <div class="row"><span>Temperature (Cold):</span><input type="text" id="s-temp" value="no hypoesthesia to cold (by tuning fork)"></div>
     </div>
 
-    <div id="s-other" class="sec hidden">
-        <div class="section-title"># Coordination</div>
-        <div id="coord-box"></div>
-        <div class="section-title"># EPS</div>
-        <div id="eps-box"></div>
-        <div class="section-title"># Autonomic</div>
-        <div id="ans-box"></div>
+    <div id="s-mmse" class="sec hidden">
+        <div class="section-title">MMSE 簡易智能測驗</div>
+        <div id="mmse-box"></div>
     </div>
 
-    <div id="s-mmse" class="sec hidden"><div class="section-title">MMSE (30-point)</div><div id="mmse-box"></div></div>
+    <div id="s-history" class="sec hidden">
+        <div class="section-title">歷史暫存紀錄</div>
+        <div id="history-list"></div>
+    </div>
 
-    <div id="s-history" class="sec hidden"><div class="section-title">歷史暫存</div><div id="history-list"></div></div>
-    <div id="s-export" class="sec hidden"><div class="section-title">病歷複製格式</div><textarea id="export-area" readonly></textarea></div>
+    <div id="s-export" class="sec hidden">
+        <div class="section-title">病歷複製格式</div>
+        <textarea id="export-area" readonly></textarea>
+    </div>
 </div>
 
-<div class="footer-bar"><span id="score-display">Ready</span></div>
+<div class="footer-bar"><span id="score-display">請開始評估</span></div>
 
 <script>
-// --- 資料庫定義 ---
-const nihssData = [
+// --- NIHSS 資料來源: NIHSS腦中風評估量表.pdf ---
+const nihssFull = [
     {n:"1a. 意識程度", opts:["0 清醒","1 嗜睡","2 呆滯","3 昏迷"]},
-    {n:"1b. 意識詢問(月、年齡)", opts:["0 兩項正確","1 一項正確","2 兩項錯誤"]},
-    {n:"1c. 執行命令(睜閉眼/握拳)", opts:["0 兩項正確","1 一項正確","2 兩項錯誤"]},
-    {n:"2. 眼球運動", opts:["0 正常","1 部份限制","2 偏向一側"]},
-    {n:"3. 視野", opts:["0 看到","1 部份偏盲","2 偏盲","3 全盲"]},
-    {n:"4. 面部肌肉", opts:["0 正常","1 嘴歪","2 嘴角不動","3 週邊麻痺"]},
-    {n:"5a/b. 上肢 (L/R)", type:"dual"},
-    {n:"6a/b. 下肢 (L/R)", type:"dual"},
-    {n:"7. 肢體失調", opts:["0 無","1 一肢","2 二肢"]},
-    {n:"8. 感覺功能", opts:["0 正常","1 部份喪失","2 完全喪失"]},
-    {n:"9. 語言功能", opts:["0 正常","1 輕度","2 嚴重","3 完全失語"]},
-    {n:"10. 構音", opts:["0 清晰","1 部份了解","2 無法了解"]},
-    {n:"11. 忽略", opts:["0 無","1 一項","2 兩項以上"]}
+    {n:"1b. 意識詢問（月、年齡）", opts:["0 兩項正確","1 一項正確","2 兩項錯誤"]},
+    {n:"1c. 執行命令（睜閉眼、握拳放開）", opts:["0 兩項正確","1 一項正確","2 兩項錯誤"]},
+    {n:"2. 眼球運動（看左右）", opts:["0 左右眼活動正確","1 一或兩眼球部份限制","2 兩眼球偏向一側"]},
+    {n:"3. 視野（左、右、上、下）", opts:["0 四個視野看到","1 一側部份偏盲","2 一側偏盲","3 全盲"]},
+    {n:"4. 面部肌肉（露齒及閉眼）", opts:["0 正常","1 一側嘴角稍歪斜","2 一側嘴角不動","3 週邊型顏面麻痺"]},
+    {n:"5a. 左上肢運動功能 (10秒)", opts:["0 正常","1 微掉","2 慢慢掉落","3 只能水平活動","4 無法活動"]},
+    {n:"5b. 右上肢運動功能 (10秒)", opts:["0 正常","1 微掉","2 慢慢掉落","3 只能水平活動","4 無法活動"]},
+    {n:"6a. 左下肢運動功能 (5秒)", opts:["0 正常","1 微掉","2 慢慢掉落","3 只能水平活動","4 無法活動"]},
+    {n:"6b. 右下肢運動功能 (5秒)", opts:["0 正常","1 微掉","2 慢慢掉落","3 只能水平活動","4 無法活動"]},
+    {n:"7. 肢體運動失調", opts:["0 無失衡或無法配合","1 一肢體失衡","2 兩肢體以上失衡"]},
+    {n:"8. 感覺功能 (臉胸手腳)", opts:["0 正常","1 部份感覺喪失","2 全部感覺喪失(昏迷)"]},
+    {n:"9. 語言功能 (看圖說故事/命名)", opts:["0 表達詳細清楚","1 任一項缺損","2 嚴重缺損","3 完全失語"]},
+    {n:"10. 構音困難", opts:["0 清晰","1 部份瞭解","2 無法瞭解"]},
+    {n:"11. 忽略 (視/觸/聽/空間)", opts:["0 兩側感受到刺激","1 忽略一項","2 忽略兩項以上"]}
 ];
 
-const updrsData = [
-    {id:18, n:"Speech", opts:["0 正常","1 輕微減弱","2 中度含糊可了解","3 重度難了解","4 完全不了解"]},
-    {id:19, n:"Mask face", opts:["0 正常","1 輕微撲克臉","2 確定不正常","3 中度張口","4 僵硬全無"]},
-    {id:20, n:"Resting tremor", type:"4", k:["RU","LU","RL","LL"]},
-    {id:21, n:"Action tremor", type:"2", k:["R","L"]},
-    {id:22, n:"Rigidity", type:"5", k:["Neck","RU","LU","RL","LL"]},
-    {id:23, n:"Finger tapping", type:"2", k:["R","L"]},
-    {id:24, n:"Hand Movements", type:"2", k:["R","L"]},
-    {id:25, n:"RAM", type:"2", k:["R","L"]},
-    {id:26, n:"Foot tapping", type:"2", k:["R","L"]},
-    {id:27, n:"Stand up", opts:["0 正常","1 遲緩試多次","2 推把手站起","3 向後跌回可自力","4 需人幫"]},
-    {id:28, n:"Posture", opts:["0 挺直","1 輕微駝背","2 中度駝背側彎","3 中度側彎","4 嚴重前屈"]},
-    {id:29, n:"Gait", opts:["0 正常","1 遲緩拖步","2 碎步需小幫助","3 極端困難","4 不能走"]},
-    {id:30, n:"Pull test", opts:["0 正常","1 後退自平","2 無反應需抓","3 不穩失平","4 需幫站穩"]},
-    {id:31, n:"Bradykinesia", opts:["0 正常","1 稍微變慢","2 確定不正常","3 中度變慢","4 重度變慢"]}
+// --- UPDRS 資料來源: UPDRS.pdf (含完整評分描述) ---
+const updrsFull = [
+    {id:18, n:"語言 (Speech)", type:"single", opts:["0 正常","1 表情、用字、音量有一點減弱","2 中度障礙，發音含糊單調，但是可以了解","3 重度障礙，很難了解","4 完全不了解"]},
+    {id:19, n:"面部表情 (Masked Face)", type:"single", opts:["0 正常","1 輕微面無表情,可以是正常人的'撲克臉'","2 面部表情輕微地減少,並確定是不正常減少","3 中度面無表情,嘴巴有時微張","4 臉部僵硬、固定、表情全無、嘴吧張開超過半公分"]},
+    {id:20, n:"靜止型顫抖 (Resting tremor)", type:"4limb", k:["RU","LU","RL","LL"], opts:["0 沒有","1 輕微顫抖,很少出現","2 持續性的輕微顫抖或間續性的中度顫抖","3 中度顫抖,常常出現","4 抖動幅度很大,並且經常出現"]},
+    {id:21, n:"動作或姿勢型顫抖 (Action tremor)", type:"rl", k:["R","L"], opts:["0 沒有","1 輕微,只有動作時才發生","2 中度,只有動作時才發生","3 中度,在動作及維持姿勢時皆發生","4 重度,會干擾進食"]},
+    {id:22, n:"僵硬 (Rigidity)", type:"rigidity", k:["Neck","RU","LU","RL","LL"], opts:["0 沒有","1 極輕微,或只有在其他肢體做動作時才可測到","2 輕微至中度","3 明顯,但是範圍內動作可完成","4 嚴重,範圍內動作完成困難"]},
+    {id:23, n:"手指打拍 (Finger tapping)", type:"rl", k:["R","L"], opts:["0 正常 (每5秒>=15下)","1 有時遲緩,幅度減少 (每5秒11-14下)","2 中度障礙,容易疲勞,有時動作會中斷 (每5秒7-10下)","3 重度障礙,啟動很慢,或動作時常中斷 (每5秒3-6下)","4 幾乎無法動作 (每5秒0-2下)"]},
+    {id:24, n:"手掌握合 (Hand Movements)", type:"rl", k:["R","L"], opts:["0 正常","1 有點緩慢,或張開幅度稍微減小","2 中度障礙,容易疲勞,有時中斷","3 重度障礙,開始很吃力,或常中斷","4 幾乎無法動作"]},
+    {id:25, n:"前臂迴旋 (RAM)", type:"rl", k:["R","L"], opts:["0 正常","1 有點遲緩,幅度稍微減小","2 中度遲緩,容易疲勞,有時中斷","3 重度遲緩,開始很吃力,或常中斷","4 幾乎無法動作"]},
+    {id:26, n:"兩腳靈敏度 (Foot tapping)", type:"rl", k:["R","L"], opts:["0 正常","1 有點遲緩,幅度稍微減小","2 中度遲緩,容易疲勞,有時中斷","3 重度遲緩,開始很吃力,或常中斷","4 幾乎無法動作"]},
+    {id:27, n:"從椅子上站起來 (Arising from Chair)", type:"single", opts:["0 正常","1 遲緩,或需要試好多次","2 可自己推把手站起來","3 容易向後跌回,但仍可自力站起","4 必須要人幫助才能站起"]},
+    {id:28, n:"姿勢 (Posture)", type:"single", opts:["0 正常挺直","1 不是很挺,輕微駝背","2 中度駝背,明顯異常,有輕度側彎","3 中度駝背,中度側彎","4 嚴重前屈,姿勢極端不正確"]},
+    {id:29, n:"步態 (Gait)", type:"single", opts:["0 正常","1 步態遲緩、拖步、但不會急步或向前衝","2 走路困難,但不需要或只需一點幫助,有時碎步","3 走路極端困難,需要幫助","4 即使有幫助,仍不能走路"]},
+    {id:30, n:"姿勢平穩度 (Pull test)", type:"single", opts:["0 正常","1 後退,但不需要幫助,可自行平衡","2 沒有平衡反應,若無抓人會摔倒","3 非常不穩,有失去平衡傾向","4 需要幫助才能站穩"]},
+    {id:31, n:"全身動作遲緩 (Bradykinesia)", type:"single", opts:["0 正常","1 稍微變慢,給人小心翼翼的感覺","2 輕度變慢或動作減少,確實不正常","3 中度變慢或動作減少,或幅度減小","4 重度變慢或動作減少"]}
 ];
 
-const mmseQs = ["年份","季節","日期","禮拜","月份","省/市","縣/市","區/鄉鎮","單位","樓層","複述:藍色","複述:悲傷","複述:火車","100-7","93-7","86-7","79-7","72-7","回憶:藍色","回憶:悲傷","回憶:火車","手錶","鉛筆","白紙黑字","閉眼","拿紙","摺半","放大腿","寫句子","畫圖"];
+// --- MMSE 資料來源: MMSE.pdf ---
+const mmseQs = ["年份 (今年是那一年?)","季節 (現在是什麼季節?)","日期 (今天是幾號?)","禮拜 (今天是禮拜幾?)","月份 (現在是那一個月份?)","省/市 (我們現在在那一個省?)","縣/市 (我們現在在那一個縣、市?)","區/鄉鎮 (這裡屬於哪一個區或鄉鎮?)","機構名稱 (這個醫院或診所的名稱?)","樓層 (現在我們是在幾樓?)","複述: 藍色","複述: 悲傷","複述: 火車","100-7=93","93-7=86","86-7=79","79-7=72","72-7=65","回憶: 藍色","回憶: 悲傷","回憶: 火車","辨認: 手錶","辨認: 鉛筆","跟我唸: 白紙真正寫黑字","做動作: 請閉上眼睛","三步驟: 拿紙","三步驟: 摺半","三步驟: 放大腿","寫句子 (主動詞語意完整)","畫圖 (兩五邊形交集)"];
 
-// --- 初始化函數 ---
 function init() {
-    // NIHSS
-    const nb = document.getElementById('nihss-box');
-    nihssData.forEach((q, i) => {
-        if(q.type === "dual") {
-            nb.innerHTML += `<div class="row"><span class="q-label">${q.n}</span><div class="mp-selects">L:<select class="n-val">${[0,1,2,3,4].map(v=>`<option>${v}</option>`).join('')}</select> R:<select class="n-val">${[0,1,2,3,4].map(v=>`<option>${v}</option>`).join('')}</select></div></div>`;
+    // 渲染 NIHSS
+    const nBox = document.getElementById('nihss-box');
+    nihssFull.forEach((q, i) => {
+        nBox.innerHTML += `<div class="row"><span class="q-label">${q.n}</span><select class="n-val" onchange="calcN()">${q.opts.map((opt,v)=>`<option value="${v}">${opt}</option>`).join('')}</select></div>`;
+    });
+
+    // 渲染 UPDRS (含詳細描述選項)
+    const uBox = document.getElementById('updrs-box');
+    updrsFull.forEach(it => {
+        let html = `<div class="row"><span class="q-label">${it.id}. ${it.n}</span><div class="mp-selects">`;
+        if(it.type === 'single') {
+            html += `<select class="u-val">${it.opts.map((opt,v)=>`<option value="${v}">${opt}</option>`).join('')}</select>`;
         } else {
-            nb.innerHTML += `<div class="row"><span class="q-label">${q.n}</span><select class="n-val" onchange="calc()">${q.opts.map((o,v)=>`<option value="${v}">${o}</option>`).join('')}</select></div>`;
+            html += it.k.map(label => `<span>${label}:</span><select class="u-val-sub" data-key="${label}">${it.opts.map((opt,v)=>`<option value="${v}">${opt.charAt(0)}</option>`).join('')}</select>`).join(' ');
+            html += `<br><small style="color:#666">${it.opts.join(' | ')}</small>`;
         }
+        uBox.innerHTML += html + `</div></div>`;
     });
 
-    // UPDRS
-    const ub = document.getElementById('updrs-box');
-    updrsData.forEach(q => {
-        let h = `<div class="row"><span class="q-label">${q.id}. ${q.n}</span><div class="mp-selects">`;
-        if(!q.type) h += `<select class="u-val">${q.opts.map((o,v)=>`<option value="${v}">${o}</option>`).join('')}</select>`;
-        else h += q.k.map(k=>`${k}:<select class="u-sub-val">${[0,1,2,3,4].map(v=>`<option>${v}</option>`).join('')}</select>`).join(' ');
-        ub.innerHTML += h + `</div></div>`;
-    });
-
-    // MP
-    const mb = document.getElementById('mp-box');
+    // 渲染 Muscle Power
+    const mpBox = document.getElementById('mp-box');
     const mpList = ["Neck Flex/Ext", "Shoulder Abd (C5)", "Elbow Flex (C6)", "Elbow Ext (C7)", "Wrist Flex (C7)", "Wrist Ext (C6)", "Finger Flex (C8)", "Finger Ext (C7)", "Grasping (C8/T1)", "Finger Abd/Add (T1)", "Hip Flex (L2)", "Knee Flex (S2)", "Knee Ext (L3)", "Ankle Dorsi (L4)", "Ankle Plantar (S1)", "Big Toe Ext (L5)"];
     mpList.forEach(it => {
-        mb.innerHTML += `<div class="mp-row"><span>${it}</span><div class="mp-selects">R:<select class="mp-r">${[5,4,3,2,1,0].map(v=>`<option>${v}</option>`).join('')}</select> L:<select class="mp-l">${[5,4,3,2,1,0].map(v=>`<option>${v}</option>`).join('')}</select></div></div>`;
+        mpBox.innerHTML += `<div class="mp-row"><span>${it}</span><div class="mp-selects">R:<select class="mp-r">${[5,4,3,2,1,0].map(v=>`<option>${v}</option>`).join('')}</select> L:<select class="mp-l">${[5,4,3,2,1,0].map(v=>`<option>${v}</option>`).join('')}</select></div></div>`;
     });
 
-    // DTR
-    const db = document.getElementById('dtr-box');
-    ["Biceps", "Triceps", "Brachioradialis", "Knee", "Ankle"].forEach(it => {
-        db.innerHTML += `<div class="mp-row"><span>${it}</span><div class="mp-selects">R:<select class="d-r">${["++","+++","++++","+","-"].map(v=>`<option>${v}</option>`).join('')}</select> L:<select class="d-l">${["++","+++","++++","+","-"].map(v=>`<option>${v}</option>`).join('')}</select></div></div>`;
+    // 渲染 DTR & Reflexes
+    const dBox = document.getElementById('dtr-box');
+    ["Biceps(C5/6)", "Triceps(C7)", "Brachioradialis(C5/6)", "Knee(L4)", "Ankle(S1)"].forEach(it => {
+        dBox.innerHTML += `<div class="mp-row"><span>${it}</span><div class="mp-selects">R:<select class="d-r">${["++","+++","++++","+","-","mute"].map(v=>`<option>${v}</option>`).join('')}</select> L:<select class="d-l">${["++","+++","++++","+","-","mute"].map(v=>`<option>${v}</option>`).join('')}</select></div></div>`;
+    });
+    ["Babinski", "Hoffman", "Snouting", "Rooting", "Palmo-mental", "Grasping"].forEach(it => {
+        dBox.innerHTML += `<div class="mp-row"><span>${it}</span><div class="mp-selects">R:<select class="rf-r"><option>-</option><option>+</option></select> L:<select class="rf-l"><option>-</option><option>+</option></select></div></div>`;
     });
 
-    // Sensory: Joint & Vibe
-    const jb = document.getElementById('joint-vibe-box');
-    ["Fingers (Joint Pos)", "Toes (Joint Pos)"].forEach(it => {
-        jb.innerHTML += `<div class="mp-row"><span>${it}</span><div class="mp-selects">R:<select class="j-r">${[5,4,3,2,1,0].map(v=>`<option>${v}</option>`).join('')}</select> L:<select class="j-l">${[5,4,3,2,1,0].map(v=>`<option>${v}</option>`).join('')}</select></div></div>`;
-    });
-    const vO = []; for(let i=80; i>=0; i-=5) vO.push((i/10).toFixed(1));
-    ["Big toe (Vibe)", "Finger (Vibe)", "Ankle (Vibe)"].forEach(it => {
-        jb.innerHTML += `<div class="mp-row"><span>${it}</span><div class="mp-selects">R:<select class="v-r">${vO.map(v=>`<option ${v=='8.0'?'selected':''}>${v}</option>`).join('')}</select> L:<select class="v-l">${vO.map(v=>`<option ${v=='8.0'?'selected':''}>${v}</option>`).join('')}</select></div></div>`;
-    });
+    // 渲染 Sensory 中的 Joint/Vibe
+    const jvBox = document.getElementById('joint-vibe-box');
+    ["Fingers", "Toes"].forEach(it => jvBox.innerHTML += `<div class="mp-row"><span>${it} (Joint/Proprioception)</span><div class="mp-selects">R:<select class="j-r">5</select> L:<select class="j-l">5</select></div></div>`);
+    const vOpts = []; for(let i=80; i>=0; i-=5) vOpts.push((i/10).toFixed(1));
+    ["Big toe", "Finger", "Ankle"].forEach(it => jvBox.innerHTML += `<div class="mp-row"><span>${it} (Vibe)</span><div class="mp-selects">R:<select class="v-r">${vOpts.map(v=>`<option ${v=='8.0'?'selected':''}>${v}</option>`).join('')}</select> L:<select class="v-l">${vOpts.map(v=>`<option ${v=='8.0'?'selected':''}>${v}</option>`).join('')}</select></div></div>`);
+    document.querySelectorAll('.j-r, .j-l').forEach(el => el.innerHTML = [5,4,3,2,1,0].map(v=>`<option>${v}</option>`).join(''));
 
-    // Other (Coord/EPS/ANS)
-    document.getElementById('coord-box').innerHTML = `
-        <div class="mp-row"><span>Dysmetria (FNF):</span><div class="mp-selects">R:<select id="o-fnf-r"><option>-</option><option>+</option></select> L:<select id="o-fnf-l"><option>-</option><option>+</option></select></div></div>
-        <div class="mp-row"><span>Dysmetria (HKS):</span><div class="mp-selects">R:<select id="o-hks-r"><option>-</option><option>+</option></select> L:<select id="o-hks-l"><option>-</option><option>+</option></select></div></div>
-        <div class="mp-row"><span>Truncal titubation:</span><select id="o-titub"><option>-</option><option>+</option></select></div>
-        <div class="row"><span>Stance:</span><input type="text" id="o-stance" value="narrow based"></div>
-        <div class="row"><span>Gait:</span><input type="text" id="o-gait-c" value="normal"></div>`;
-    
-    document.getElementById('eps-box').innerHTML = `
-        <div class="mp-row"><span>Face Expression:</span><div class="mp-selects"><input type="text" id="e-face-t" value="appropriate" style="width:100px"> mask:<select id="e-face-m"><option>-</option><option>+</option></select></div></div>
-        <div class="mp-row"><span>Tremor:</span><div class="mp-selects">Rest:<select id="e-t-r"><option>-</option><option>+</option></select> Act:<select id="e-t-a"><option>-</option><option>+</option></select> Post:<select id="e-t-p"><option>-</option><option>+</option></select></div></div>
-        <div class="mp-row"><span>Bradykinesia:</span><div class="mp-selects">RUE:<select id="e-b-rue"><option>-</option><option>+</option></select> LUE:<select id="e-b-lue"><option>-</option><option>+</option></select> RLE:<select id="e-b-rle"><option>-</option><option>+</option></select> LLE:<select id="e-b-lle"><option>-</option><option>+</option></select></div></div>`;
-
-    document.getElementById('ans-box').innerHTML = `
-        <div class="mp-row"><span>Sphincters:</span><div class="mp-selects">Incon:<select id="a-u-in"><option>-</option><option>+</option></select> Freq:<select id="a-u-fr"><option>-</option><option>+</option></select> Consti:<select id="a-s-co"><option>-</option><option>+</option></select></div></div>`;
-
-    // MMSE
-    const mmb = document.getElementById('mmse-box');
+    // 渲染 MMSE 題目
+    const mBox = document.getElementById('mmse-box');
     mmseQs.forEach((q, i) => {
-        mmb.innerHTML += `<div class="mp-row"><span>${i+1}. ${q}</span><select class="m-val" onchange="calc()"><option value="1">1</option><option value="0">0</option></select></div>`;
+        mBox.innerHTML += `<div class="mp-row"><span>${i+1}. ${q}</span><select class="m-val" onchange="calcM()"><option value="1">1</option><option value="0">0</option></select></div>`;
     });
+    
+    loadHistory();
 }
 
 function show(id) {
     document.querySelectorAll('.sec').forEach(s=>s.classList.add('hidden'));
     document.getElementById('s-'+id).classList.remove('hidden');
     document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
-    document.getElementById('b-'+id).classList.add('active');
+    if(document.getElementById('b-'+id)) document.getElementById('b-'+id).classList.add('active');
 }
 
-function calc() {
-    const n = Array.from(document.querySelectorAll('.n-val')).reduce((a,b)=>a+parseInt(b.value),0);
-    const m = Array.from(document.querySelectorAll('.m-val')).reduce((a,b)=>a+parseInt(b.value),0);
-    document.getElementById('score-display').innerText = `NIHSS: ${n} | MMSE: ${m}/30`;
+function calcN() {
+    const n = Array.from(document.querySelectorAll('.n-val')).map(s=>parseInt(s.value));
+    document.getElementById('score-display').innerText = "NIHSS: " + n.reduce((a,b)=>a+b, 0);
+}
+function calcM() {
+    const m = Array.from(document.querySelectorAll('.m-val')).map(s=>parseInt(s.value));
+    document.getElementById('score-display').innerText = "MMSE: " + m.reduce((a,b)=>a+b, 0) + "/30";
 }
 
 function exportData() {
     show('export');
-    const get = (id) => document.getElementById(id).value;
-    const sels = (cl) => Array.from(document.querySelectorAll(cl)).map(s=>s.value);
+    const id = document.getElementById('chart-no').value || "N/A";
+    const getV = (id) => document.getElementById(id).value;
+    const getSel = (cls) => Array.from(document.querySelectorAll(cls)).map(s=>s.value);
     
-    let t = `[Patient ID: ${get('chart-no') || 'N/A'}]\n\n`;
+    let t = `[Patient ID: ${id}]\n\n`;
     
-    t += `* Motor\nMotor inspection: muscle wasting(${get('m-wasting')}), fasciculation(${get('m-fasc')}), muscle cramps(${get('m-cramp')}), dystonia(${get('m-dystonia')})\n`;
-    t += `Muscle tone: spasticity(${get('m-spastic')}), rigidity(${get('m-rigid')})\n\n`;
+    // NIHSS
+    const nv = getSel('.n-val');
+    t += `NIHSS: ${nv.reduce((a,b)=>a+parseInt(b), 0)} (${nv.slice(0,3).join('')} ${nv.slice(3,6).join('')} ${nv.slice(6,10).join('')} ${nv.slice(10,15).join('')})\n\n`;
+    
+    // UPDRS (展開格式)
+    const uS = getSel('.u-val');
+    const uSub = getSel('.u-val-sub');
+    t += `UPDRS part III\nSpeech: ${uS[0]}\nMask face: ${uS[1]}\nResting tremor: RU/LU/RL/LL: ${uSub[0]}/${uSub[1]}/${uSub[2]}/${uSub[3]}\nAction tremor: R/L: ${uSub[4]}/${uSub[5]}\nRigidity: Neck/RU/LU/RL/LL: ${uSub[6]}/${uSub[7]}/${uSub[8]}/${uSub[9]}/${uSub[10]}\nFinger tapping: R/L: ${uSub[11]}/${uSub[12]}\nGrasping: R/L: ${uSub[13]}/${uSub[14]}\nRAM: R/L: ${uSub[15]}/${uSub[16]}\nFoot tapping: R/L: ${uSub[17]}/${uSub[18]}\nStand up: ${uS[2]}\nPosture: ${uS[3]}\nGait: ${uS[4]}\nPull test: ${uS[5]}\nBradykinesia: ${uS[6]}\n\n`;
 
-    t += `# Sensation:\n- Subjective paraesthesia (${get('s-para')})\n`;
-    t += `- Joint position/Proprioception: Fingers ${sels('.j-r')[0]}/${sels('.j-l')[0]}, Toes ${sels('.j-r')[1]}/${sels('.j-l')[1]}\n`;
-    t += `- Vibration: BigToe ${sels('.v-r')[0]}/${sels('.v-l')[0]}\n`;
-    t += `- Neglect: ${get('s-neglect')}\n- Romberg's test (${get('s-romberg')})\n\n`;
-    
-    t += `NIHSS: ${Array.from(document.querySelectorAll('.n-val')).reduce((a,b)=>a+parseInt(b.value),0)}\n`;
-    t += `MMSE: ${Array.from(document.querySelectorAll('.m-val')).reduce((a,b)=>a+parseInt(b.value),0)}/30\n`;
-    
+    // Sensation
+    t += `# Sensation:\n`;
+    t += `- Subjective paraesthesia (${getV('s-para')})\n`;
+    t += `- joint position/Proprioception: Fingers ${getSel('.j-r')[0]}/${getSel('.j-l')[0]}, Toes ${getSel('.j-r')[1]}/${getSel('.j-l')[1]}\n`;
+    t += `- Neglect: ${getV('s-neglect')}\n`;
+    t += `- Romberg's test (${getV('s-romberg')})\n`;
+    t += `- Small fiber:\n   Light touch: ${getV('s-light')}\n   Pinprick: ${getV('s-pin')}\n   Temperature: ${getV('s-temp')}\n`;
+    t += `- Large fiber (Vibration): BigToe ${getSel('.v-r')[0]}/${getSel('.v-l')[0]}, Finger ${getSel('.v-r')[1]}/${getSel('.v-l')[1]}, Ankle ${getSel('.v-r')[2]}/${getSel('.v-l')[2]}\n\n`;
+
+    t += `MMSE: ${getSel('.m-val').reduce((a,b)=>a+parseInt(b), 0)}/30\n`;
     document.getElementById('export-area').value = t;
+}
+
+function saveToHistory() {
+    const id = document.getElementById('chart-no').value || "NoID";
+    const data = { id, date: new Date().toLocaleString(), chart: id };
+    let h = JSON.parse(localStorage.getItem('neu_h') || '[]');
+    h.unshift(data);
+    localStorage.setItem('neu_h', JSON.stringify(h.slice(0,15)));
+    loadHistory();
+    alert("已成功保存暫存");
+}
+
+function loadHistory() {
+    const h = JSON.parse(localStorage.getItem('neu_h') || '[]');
+    document.getElementById('history-list').innerHTML = h.map(i => `<div class="history-item"><div><strong>ID: ${i.id}</strong><br><small>${i.date}</small></div><button onclick="alert('請手動切換至該病患頁面填寫')">查看</button></div>`).join('');
 }
 
 init(); show('nihss');
